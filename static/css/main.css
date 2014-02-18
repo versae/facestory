@@ -6,3 +6,17 @@ body {
   padding: 40px 15px;
   text-align: center;
 }
+
+.tag-point {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #e4d00a;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -ms-border-radius: 50%;
+    border-radius: 50%;
+    border: 1px solid #e4d00a;
+    margin: -2px 0 0 -2px;
+    font-size: 0;
+}

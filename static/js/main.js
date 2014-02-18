@@ -122,17 +122,31 @@
                 // Request complete.
                 },
                 // Request was successful.
-                success: function (response, textStatus, xhr) {
-                    console.log('Response: ', response);
-                    // Conversion successful.
-                    if (response.status_code === 200) {
-                        imageURL = response.data.image_url;
-                    }
+                success: function (data, textStatus, xhr) {
+                    console.log('data: ', data);
+                    imageURL = data['image_url'];
+                    that.drawTags(
+                        data['faces']['width'],
+                        data['faces']['height'],
+                        data['faces']['tags'][0]['points']
+                    );
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     // Some error occured.
                     console.log('Error: ', errorThrown);
                 }
+            });
+        },
+
+        drawTags: function (widthPct, heightPect, tags) {
+            console.log(tags)
+            $(tags).each(function (index, item) {
+                var tagSpan = $("<span/>"),
+                    left = widthPct * item['x'] / 100,
+                    top = heightPect * item['y'] / 100;
+                tagSpan.addClass("tag-point");
+                tagSpan.attr("style", "top: "+ top +"px; left: "+ left +"px;");
+                $(options.canvas).append(tagSpan);
             });
         }
 
