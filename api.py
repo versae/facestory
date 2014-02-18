@@ -65,6 +65,7 @@ def get_image_faces(file_obj):
         "api_secret": SKYBIOMETRY_API_SECRET,
         "urls": "",
         "attributes": "all",
+        "detect_all_feature_points": "true",
     }
     files = {'file': file_obj}
     response = requests.post(url, data=data, files=files)

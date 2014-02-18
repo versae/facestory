@@ -21,7 +21,6 @@
         video: '#video',
         canvas: '#canvas',
         captureBtn: '#capture-btn',
-        imageURLInput: '#image-url-input'
     };
     // This will hold the video stream.
     var localMediaStream = null;
@@ -39,8 +38,6 @@
         ctx: canvas.getContext('2d'),
         // Get the capture button.
         captureBtn: document.querySelector(options.captureBtn),
-        // Get the input field to paste in the imageURL.
-        imageURLInput: document.querySelector(options.imageURLInput),
 
         initialize: function () {
             var that = this;
@@ -116,7 +113,6 @@
             // Only place where we need jQuery to make an ajax request
             // to our server to convert the dataURL to a PNG image,
             // and return the url of the converted image.
-            that.imageURLInput.value = 'Fetching url ...';
             $.ajax({
                 url: options.url,
                 type: 'POST',
@@ -131,15 +127,11 @@
                     // Conversion successful.
                     if (response.status_code === 200) {
                         imageURL = response.data.image_url;
-                        // Paste the PNG image url into the input field.
-                        that.imageURLInput.value = imageURL;
-                                                that.imageURLInput.removeAttribute('disabled');
                     }
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     // Some error occured.
                     console.log('Error: ', errorThrown);
-                    imageURLInput.value = 'An error occured.';
                 }
             });
         }

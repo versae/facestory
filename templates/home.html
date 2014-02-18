@@ -9,19 +9,13 @@
     <p class="lead">Discover what century and painting style your face belongs to!</p>
     <p>
     <!-- Video element (live stream) -->
-    <label>Video Stream</label>
     <video autoplay id="video" width="640" height="480"></video>
-
     <!-- Canvas element (screenshot) -->
-    <label>Screenshot (base 64 dataURL)</label>
     <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
-
+    </p>
+    <p>
     <!-- Capture button -->
-    <button id="capture-btn">Capture!</button>
-
-    <!-- Image URL output -->
-    <label>Image URL</label>
-    <input type="text" id="image-url-input" disabled>
+    <button id="capture-btn" class="btn btn-lg btn-primary">Shot!</button>
     </p>
 </div>
 {% endblock %}
