@@ -44,6 +44,8 @@ class FaceSimilarity(restful.Resource):
         # Create image in memory
         image_tmp = cStringIO.StringIO(image_base64)
         image_faces = get_image_faces(image_tmp)
+        if len(image_faces['tags']) == 0:
+            message = u"No faces found"
         #im = Image.open(image_tmp)
         return {
             'image_url': image_url,
@@ -72,6 +74,6 @@ def get_image_faces(file_obj):
     json = {}
     if response.status_code == requests.codes.ok:
         json = response.json()
-        if json["status"] == u"success":
+        if json["status"] == u"success" and len(json["photos"]) > 0:
             return json["photos"][0]
     return None

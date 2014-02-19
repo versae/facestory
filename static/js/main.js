@@ -4,7 +4,7 @@
 */
 
 /*global
-    canvas, alert, console, video
+    canvas, alert, console, video, jQuery
 */
 
 'use strict';
@@ -12,7 +12,7 @@
 // Take a screenshot using getUserMedia API.
 // From http://www.miguelmota.com/blog/screenshots-with-getusermedia-api/
 // Give credit where credit is due. The code is heavily inspired by
-// HTML5 Rocks' article "Capturing Audio & Video in HTML5"
+// HTML5 Rocks' article 'Capturing Audio & Video in HTML5'
 // http://www.html5rocks.com/en/tutorials/getusermedia/intro/
 (function ($, document, undefined) {
 
@@ -20,7 +20,11 @@
     var options = {
         video: '#video',
         canvas: '#canvas',
+        canvasContainer: '#canvas-container',
         captureBtn: '#capture-btn',
+        tryagainBtn: '#tryagain-btn',
+        message: '#message',
+        progressBar: '#progress-bar'
     };
     // This will hold the video stream.
     var localMediaStream = null;
@@ -34,10 +38,14 @@
         video: document.querySelector(options.video),
         // Get the canvas element.
         canvas: document.querySelector(options.canvas),
+        canvasContainer: document.querySelector(options.canvasContainer),
         // Get the canvas context.
         ctx: canvas.getContext('2d'),
         // Get the capture button.
         captureBtn: document.querySelector(options.captureBtn),
+        tryagainBtn: document.querySelector(options.tryagainBtn),
+        message: document.querySelector(options.message),
+        progressBar: document.querySelector(options.progressBar),
 
         initialize: function () {
             var that = this;
@@ -63,6 +71,10 @@
             } else {
                 // No getUserMedia support.
                 alert('Your browser does not support getUserMedia API.');
+            }
+
+            this.tryagainBtn.onclick = function () {
+                that.tryagain();
             }
         },
 
@@ -99,55 +111,84 @@
                 // Call our method to save the data url to an image.
                 $(options.canvas).toggle();
                 $(options.video).toggle();
+                $(options.captureBtn).toggle();
+                $(options.progressBar).toggle();
                 that.saveDataUrlToImage();
             }
         },
 
+        tryagain: function () {
+            $(options.canvas).hide();
+            $(options.video).show();
+            $(options.captureBtn).show();
+            $(options.tryagainBtn).hide();
+            $(options.message).show();
+            $('.tag-point').remove();
+        },
+
         saveDataUrlToImage: function () {
             var that = this;
-            var options = {
-                // Change this to your own url.
-                url: '/api/similarity'
-            };
-
             // Only place where we need jQuery to make an ajax request
             // to our server to convert the dataURL to a PNG image,
             // and return the url of the converted image.
             $.ajax({
-                url: options.url,
+                url: '/api/similarity',
                 type: 'POST',
                 dataType: 'json',
                 data: { 'data_uri': dataURL },
-                complete: function (xhr, textStatus) {
-                // Request complete.
-                },
                 // Request was successful.
                 success: function (data, textStatus, xhr) {
                     console.log('data: ', data);
-                    imageURL = data['image_url'];
-                    that.drawTags(
-                        data['faces']['width'],
-                        data['faces']['height'],
-                        data['faces']['tags'][0]['points']
-                    );
+                    console.log('xhr: ', xhr);
+                    if (data.message === 'OK') {
+                        imageURL = data.image_url;
+                        $(data.faces.tags).each(function (index, item) {
+                            that.drawTags(
+                                data.faces.width,
+                                data.faces.height,
+                                item.points
+                            );
+                        });
+                        console.log(options.tryagainBtn)
+                        $(options.tryagainBtn).show();
+                        console.log(options.progressBar)
+                        $(options.progressBar).hide();
+                    } else {
+                        that.showMessage('Ups, something went wrong. Try again!');
+                    }
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     // Some error occured.
                     console.log('Error: ', errorThrown);
+                    that.showMessage('Ups, something went wrong. Try again!');
                 }
             });
         },
 
         drawTags: function (widthPct, heightPect, tags) {
-            console.log(tags)
+            console.log(tags);
             $(tags).each(function (index, item) {
-                var tagSpan = $("<span/>"),
-                    left = widthPct * item['x'] / 100,
-                    top = heightPect * item['y'] / 100;
-                tagSpan.addClass("tag-point");
-                tagSpan.attr("style", "top: "+ top +"px; left: "+ left +"px;");
-                $(options.canvas).append(tagSpan);
+                var tagSpan = $('<span/>'),
+                    offset = $(options.canvas).offset(),
+                    left = parseInt(widthPct * item.x / 100, 10) + offset.left,
+                    top = parseInt(heightPect * item.y / 100, 10) + offset.top;
+                tagSpan.addClass('tag-point');
+                tagSpan.hide();
+                tagSpan.attr('style', 'top: ' + top + 'px; ' +
+                                      'left: ' + left + 'px;');
+                tagSpan.attr('id', item.id);
+                $(options.canvasContainer).append(tagSpan);
             });
+        },
+
+        showMessage: function (message) {
+            $(options.canvas).show();
+            $(options.video).hide();
+            $(options.tryagainBtn).show();
+            $(options.captureBtn).hide();
+            $(options.progressBar).hide();
+            $(options.message).show();
+            $(options.message).html(message);
         }
 
     };

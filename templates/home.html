@@ -11,11 +11,20 @@
     <!-- Video element (live stream) -->
     <video autoplay id="video" width="640" height="480"></video>
     <!-- Canvas element (screenshot) -->
-    <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+    <div id="canvas-container">
+        <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+    </div>
     </p>
     <p>
     <!-- Capture button -->
+    <div class="progress progress-striped active" id="progress-bar" style="display: none;">
+        <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+            <span class="sr-only">Analyzing...</span>
+        </div>
+    </div>
+    <div class="alert alert-danger" id="message" style="display: none;"></div>
     <button id="capture-btn" class="btn btn-lg btn-primary">Shot!</button>
+    <button id="tryagain-btn" class="btn btn-lg btn-warning" style="display: none;">Try Again</button>
     </p>
 </div>
 {% endblock %}
