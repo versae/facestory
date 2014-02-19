@@ -35,12 +35,13 @@ class FaceSimilarity(restful.Resource):
         image_base64 = image_str.decode('base64')
         # Save image in disk
         message = u"OK"
+        error = u""
         try:
             output = open(image_path, 'wb')
             output.write(image_base64)
             output.close()
         except IOError:
-            message = u"Error when saving image in disk"
+            error = u"Error when saving image in disk"
         # Create image in memory
         image_tmp = cStringIO.StringIO(image_base64)
         image_faces = get_image_faces(image_tmp)
@@ -51,6 +52,7 @@ class FaceSimilarity(restful.Resource):
             'image_url': image_url,
             'host': request.host,
             'message': message,
+            'error': error,
             'faces': image_faces,
         }
 
