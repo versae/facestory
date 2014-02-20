@@ -122,7 +122,7 @@
             $(options.video).show();
             $(options.captureBtn).show();
             $(options.tryagainBtn).hide();
-            $(options.message).show();
+            $(options.message).hide();
             $('.tag-point').remove();
         },
 

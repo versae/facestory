@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-import cStringIO
+import io
 import os
 import re
 import uuid
 
-import requests
+from PIL import Image
 
 from flask import request
 from flask.ext import restful
 from flask.ext.restful import reqparse
 
+from utils import get_face_properties, get_image_faces
+
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-SKYBIOMETRY_API_KEY = os.environ['SKYBIOMETRY_API_KEY']
-SKYBIOMETRY_API_SECRET = os.environ['SKYBIOMETRY_API_SECRET']
 
 
 class FaceSimilarity(restful.Resource):
@@ -43,39 +43,31 @@ class FaceSimilarity(restful.Resource):
         except IOError:
             error = u"Error when saving image in disk"
         # Create image in memory
-        image_tmp = cStringIO.StringIO(image_base64)
-        image_faces = get_image_faces(image_tmp)
-        if len(image_faces['tags']) == 0:
+        image = Image.open(io.BytesIO(image_base64))
+        image_faces = get_image_faces(io.BytesIO(image_base64))
+        if not image_faces or len(image_faces['tags']) == 0:
             message = u"No faces found"
-        #im = Image.open(image_tmp)
+        else:
+            ages = []
+            styles = []
+            data_uris = []
+            for image_face in image_faces['tags']:
+                face_properties = get_face_properties(image, image_face)
+                ages.append(face_properties["age"])
+                styles.append(face_properties["style"])
+                data_uris.append(face_properties["data_uri"])
         return {
             'image_url': image_url,
             'host': request.host,
             'message': message,
             'error': error,
             'faces': image_faces,
+            'ages': [],
+            'styles': [],
+            'image_uris': [],
         }
 
 
 def add_api(app):
     api = restful.Api(app)
     api.add_resource(FaceSimilarity, '/api/similarity')
-
-
-def get_image_faces(file_obj):
-    url = u"http://api.skybiometry.com/fc/faces/detect.json"
-    data = {
-        "api_key": SKYBIOMETRY_API_KEY,
-        "api_secret": SKYBIOMETRY_API_SECRET,
-        "urls": "",
-        "attributes": "all",
-        "detect_all_feature_points": "true",
-    }
-    files = {'file': file_obj}
-    response = requests.post(url, data=data, files=files)
-    json = {}
-    if response.status_code == requests.codes.ok:
-        json = response.json()
-        if json["status"] == u"success" and len(json["photos"]) > 0:
-            return json["photos"][0]
-    return None
