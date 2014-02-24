@@ -127,7 +127,7 @@
         },
 
         saveDataUrlToImage: function () {
-            var that = this;
+            var that = this, container = $(options.canvasContainer);
             // Only place where we need jQuery to make an ajax request
             // to our server to convert the dataURL to a PNG image,
             // and return the url of the converted image.
@@ -141,17 +141,22 @@
                     console.log('data: ', data);
                     console.log('xhr: ', xhr);
                     if (data.message === 'OK') {
-                        imageURL = data.image_url;
+                        //imageURL = data.image_url;
                         $(data.faces.tags).each(function (index, item) {
+                            var faceTag, faceDataUri;
+                            faceDataUri = data.data_uris[index];
+                            faceTag = $("<img/>");
+                            faceTag.attr("src", faceDataUri);
+                            container.append(faceTag);
                             that.drawTags(
                                 data.faces.width,
                                 data.faces.height,
                                 item.points
                             );
                         });
-                        console.log(options.tryagainBtn)
+                        console.log(options.tryagainBtn);
                         $(options.tryagainBtn).show();
-                        console.log(options.progressBar)
+                        console.log(options.progressBar);
                         $(options.progressBar).hide();
                     } else {
                         that.showMessage('Ups, something went wrong. Try again!');
