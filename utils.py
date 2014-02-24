@@ -3,6 +3,8 @@ import math
 
 import requests
 
+from db import get_closest_face_in_painting
+
 SKYBIOMETRY_API_KEY = os.environ['SKYBIOMETRY_API_KEY']
 SKYBIOMETRY_API_SECRET = os.environ['SKYBIOMETRY_API_SECRET']
 
@@ -22,15 +24,42 @@ def get_image_faces(file_obj):
     if response.status_code == requests.codes.ok:
         json = response.json()
         if json["status"] == u"success" and len(json["photos"]) > 0:
-            return json["photos"][0]
+            photo = json["photos"][0]
+            photo.pop("pid")
+            photo.pop("url")
+            return photo
     return None
 
 
-def get_face_properties(image, image_face):
+def get_face_properties(pil_image, face_features):
+    """Calculate simmetry of a face and get then information of the painting
+    with the closest value"""
     # Point 810 is person mouth_right, 822 mouth_left
+    painting_width, painting_height = pil_image.size
+    for point in face_features["points"]:
+        if point["id"] == 810:
+            face_features["mouth_right"] = point
+            if "mouth_left" in face_features:
+                break
+        if point["id"] == 822:
+            face_features["mouth_left"] = point
+            if "mouth_right" in face_features:
+                break
+    features_set = set(face_features.keys())
+    if set(["mouth_right", "mouth_left", "mouth_center", "nose",
+            "eye_right", "eye_left", "roll", "center"]).issubset(features_set):
+        symmetry = get_symmetry(face_features, painting_width, painting_height)
+        painting = get_closest_face_in_painting(symmetry)
+        return {
+            'age': painting["age"],
+            'style': painting["style"],
+            'symmetry': symmetry,
+            'data_uri': painting["data_uri"],
+        }
     return {
         'age': None,
         'style': None,
+        'symmetry': None,
         'data_uri': None,
     }
 
@@ -46,49 +75,48 @@ def midpoint(p1, p2):
     return ((p1[0] + p2[0]) / 2.0, (p1[1] + p2[1]) / 2.0)
 
 
-def get_symmetry(face_features, desired_height=250):
+def get_symmetry(face_features, painting_width, painting_height,
+                 desired_height=250):
     """Calculate the symmetry of a face"""
-    height = face_features['height']
-    width = face_features['width']
-    painting_height = face_features['painting_height']
-    painting_width = face_features['painting_width']
+    height = 1.0 * painting_height * face_features['height'] / 100
+    # width = face_features['width']
     resize_height = (1.0 * painting_height * desired_height / height) / 100.0
     resize_width = (1.0 * painting_width * desired_height / height) / 100.0
-    # Hemiline slope and independent term
+    # Hemiline slope and intercept (independent term)
     center = (
-        face_features["center_x_pct"] * resize_width,
-        face_features["center_y_pct"] * resize_height
+        face_features["center"]["x"] * resize_width,
+        face_features["center"]["y"] * resize_height
     )
     alpha = face_features["roll"]
-    hemiline_m = math.tan(alpha)
+    hemiline_m = math.tan(math.radians(90 - alpha))
     hemiline_c = center[1] - hemiline_m * center[0]
     # Midpoints
     eye_left = (
-        face_features["eye_left_x_pct"] * resize_width,
-        face_features["eye_left_y_pct"] * resize_height
+        face_features["eye_left"]["x"] * resize_width,
+        face_features["eye_left"]["y"] * resize_height
     )
     eye_right = (
-        face_features["eye_right_x_pct"] * resize_width,
-        face_features["eye_right_y_pct"] * resize_height
+        face_features["eye_right"]["x"] * resize_width,
+        face_features["eye_right"]["y"] * resize_height
     )
     m1 = midpoint(eye_left, eye_right)
     mouth_left = (
-        face_features["mouth_left_x_pct"] * resize_width,
-        face_features["mouth_left_y_pct"] * resize_height
+        face_features["mouth_left"]["x"] * resize_width,
+        face_features["mouth_left"]["y"] * resize_height
     )
     mouth_right = (
-        face_features["mouth_right_x_pct"] * resize_width,
-        face_features["mouth_right_y_pct"] * resize_height
+        face_features["mouth_right"]["x"] * resize_width,
+        face_features["mouth_right"]["y"] * resize_height
     )
     m2 = midpoint(mouth_left, mouth_right)
     # Remaining points
     nose = (
-        face_features["nose_x_pct"] * resize_width,
-        face_features["nose_y_pct"] * resize_height
+        face_features["nose"]["x"] * resize_width,
+        face_features["nose"]["y"] * resize_height
     )
     mouth = (
-        face_features["mouth_center_x_pct"] * resize_width,
-        face_features["mouth_center_y_pct"] * resize_height
+        face_features["mouth_center"]["x"] * resize_width,
+        face_features["mouth_center"]["y"] * resize_height
     )
     # Distances
     d1 = point_line_distance(m1, hemiline_m, hemiline_c)

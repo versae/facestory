@@ -10,6 +10,7 @@ gunicorn==18.0
 ipdb==0.8
 ipython==1.2.0
 itsdangerous==0.23
+pymongo==2.6.3
 pytz==2013.9
 requests==2.2.1
 six==1.5.2

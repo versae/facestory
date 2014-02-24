@@ -45,26 +45,29 @@ class FaceSimilarity(restful.Resource):
         # Create image in memory
         image = Image.open(io.BytesIO(image_base64))
         image_faces = get_image_faces(io.BytesIO(image_base64))
+        ages = []
+        styles = []
+        data_uris = []
+        symmetries = []
         if not image_faces or len(image_faces['tags']) == 0:
             message = u"No faces found"
         else:
-            ages = []
-            styles = []
-            data_uris = []
             for image_face in image_faces['tags']:
                 face_properties = get_face_properties(image, image_face)
                 ages.append(face_properties["age"])
                 styles.append(face_properties["style"])
                 data_uris.append(face_properties["data_uri"])
+                symmetries.append(face_properties["symmetry"])
         return {
             'image_url': image_url,
             'host': request.host,
             'message': message,
             'error': error,
             'faces': image_faces,
-            'ages': [],
-            'styles': [],
-            'image_uris': [],
+            'ages': ages,
+            'styles': styles,
+            'data_uris': data_uris,
+            'symmetries': symmetries,
         }
 
 
