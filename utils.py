@@ -49,12 +49,15 @@ def get_face_properties(pil_image, face_features):
     if set(["mouth_right", "mouth_left", "mouth_center", "nose",
             "eye_right", "eye_left", "roll", "center"]).issubset(features_set):
         symmetry = get_symmetry(face_features, painting_width, painting_height)
-        painting = get_closest_face_in_painting(symmetry)
+        gender = None
+        if "gender" in face_features["attributes"]:
+            gender = face_features["attributes"]["gender"]["value"]
+        painting = get_closest_face_in_painting(symmetry, gender=gender)
         return {
             'age': painting["age"],
             'style': painting["style"],
             'symmetry': symmetry,
-            'data_uri': painting["data_uri"],
+            'data_uri': painting["url"],
         }
     return {
         'age': None,
