@@ -6,6 +6,7 @@ Pillow==2.3.0
 Werkzeug==0.9.4
 aniso8601==0.82
 argparse==1.2.1
+boto==2.25.0
 gunicorn==18.0
 ipdb==0.8
 ipython==1.2.0

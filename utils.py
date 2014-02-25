@@ -1,12 +1,12 @@
-import os
 import math
 
+from boto import connect_s3
+from boto.s3.key import Key
 import requests
 
 from db import get_closest_face_in_painting
-
-SKYBIOMETRY_API_KEY = os.environ['SKYBIOMETRY_API_KEY']
-SKYBIOMETRY_API_SECRET = os.environ['SKYBIOMETRY_API_SECRET']
+from settings import (SKYBIOMETRY_API_KEY, SKYBIOMETRY_API_SECRET,
+                      AWS_STORAGE_BUCKET_NAME)
 
 
 def get_image_faces(file_obj):
@@ -127,3 +127,14 @@ def get_symmetry(face_features, painting_width, painting_height,
     d3 = point_line_distance(nose, hemiline_m, hemiline_c)
     d4 = point_line_distance(mouth, hemiline_m, hemiline_c)
     return (desired_height - (d1 + d2 + d3 + d4)) / desired_height
+
+
+def save_file_remote(filename, file_object, headers=None):
+    conn = connect_s3()
+    bucket = conn.get_bucket(AWS_STORAGE_BUCKET_NAME)
+    k = Key(bucket)
+    k.key = filename
+    num_bytes = k.set_contents_from_string(file_object, headers=headers)
+    if not num_bytes:
+        return None
+    return k.generate_url(expires_in=30)

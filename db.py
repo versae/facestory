@@ -1,12 +1,13 @@
-import os
-
 from pymongo import MongoClient, ASCENDING
 
-MONGO_URL = os.environ.get('MONGOHQ_URL')
+from settings import MONGO_URL
+
+
 client = MongoClient(MONGO_URL)
 database = client.get_default_database()
 db = {}
 db["faces"] = database.faces
+db["users"] = database.users
 
 
 def get_closest_face_in_painting(symmetry, gender=None):
@@ -44,3 +45,7 @@ def get_closest_face_in_painting(symmetry, gender=None):
         document = documents["result"][0]
         document.pop("_id")
     return document
+
+
+def save_user_face(face_features):
+    db["users"].insert(face_features)
