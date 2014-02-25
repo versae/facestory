@@ -20,6 +20,7 @@ def get_closest_face_in_painting(symmetry, gender=None):
         {"$project": {
             "id": "$id",
             "age": "$painting_age",
+            "age_number": "$painting_age_number",
             "style": "$painting_style",
             "url": "$face_url",
             "symmetry": "$symmetry",
@@ -28,6 +29,7 @@ def get_closest_face_in_painting(symmetry, gender=None):
         {"$project": {
             "id": "$id",
             "age": "$age",
+            "age_number": "$age_number",
             "style": "$style",
             "url": "$url",
             "symmetry": "$symmetry",

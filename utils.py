@@ -55,6 +55,7 @@ def get_face_properties(pil_image, face_features):
         painting = get_closest_face_in_painting(symmetry, gender=gender)
         return {
             'age': painting["age"],
+            'age_number': painting["age_number"],
             'style': painting["style"],
             'symmetry': symmetry,
             'data_uri': painting["url"],

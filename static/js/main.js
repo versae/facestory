@@ -24,7 +24,8 @@
         captureBtn: '#capture-btn',
         tryagainBtn: '#tryagain-btn',
         message: '#message',
-        progressBar: '#progress-bar'
+        progressBar: '#progress-bar',
+        results: '#results'
     };
     // This will hold the video stream.
     var localMediaStream = null;
@@ -46,6 +47,7 @@
         tryagainBtn: document.querySelector(options.tryagainBtn),
         message: document.querySelector(options.message),
         progressBar: document.querySelector(options.progressBar),
+        results: document.querySelector(options.results),
 
         initialize: function () {
             var that = this;
@@ -124,10 +126,11 @@
             $(options.tryagainBtn).hide();
             $(options.message).hide();
             $('.tag-point').remove();
+            $('.similar-face').remove();
         },
 
         saveDataUrlToImage: function () {
-            var that = this, container = $(options.canvasContainer);
+            var that = this, container = $(options.results);
             // Only place where we need jQuery to make an ajax request
             // to our server to convert the dataURL to a PNG image,
             // and return the url of the converted image.
@@ -143,20 +146,26 @@
                     if (data.message === 'OK') {
                         //imageURL = data.image_url;
                         $(data.faces.tags).each(function (index, item) {
-                            var faceTag, faceDataUri;
+                            var faceTag, faceDataUri, faceSpan;
                             faceDataUri = data.data_uris[index];
                             faceTag = $("<img/>");
+                            faceTag.addClass("similar-face");
                             faceTag.attr("src", faceDataUri);
                             container.append(faceTag);
+                            faceSpan = $("<span/>");
+                            faceSpan.addClass("similar-face");
+                            faceSpan.html("You have a perfect face for the <strong> Century " +
+                                          that.getCentury(data.ages[index]) +
+                                          "</strong><br>More exactly one from the <strong>" +
+                                          data.styles[index] + "</strong> style.")
+                            container.append(faceSpan);
                             that.drawTags(
                                 data.faces.width,
                                 data.faces.height,
                                 item.points
                             );
                         });
-                        console.log(options.tryagainBtn);
                         $(options.tryagainBtn).show();
-                        console.log(options.progressBar);
                         $(options.progressBar).hide();
                     } else {
                         that.showMessage('Ups, something went wrong. Try again!');
@@ -184,6 +193,10 @@
                 tagSpan.attr('id', item.id);
                 $(options.canvasContainer).append(tagSpan);
             });
+        },
+
+        getCentury: function(century) {
+            return century + "<sup>th</sup>";
         },
 
         showMessage: function (message) {

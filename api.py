@@ -57,13 +57,13 @@ class FaceSimilarity(restful.Resource):
         else:
             for image_face in image_faces['tags']:
                 face_properties = get_face_properties(image, image_face)
-                ages.append(face_properties["age"])
+                ages.append(face_properties["age_number"])
                 styles.append(face_properties["style"])
                 data_uris.append(face_properties["data_uri"])
                 symmetries.append(face_properties["symmetry"])
                 # Saving the info to the database
                 image_face["uuid"] = image_id
-                image_face["similarity_age"] = face_properties["age"]
+                image_face["similarity_age"] = face_properties["age_number"]
                 image_face["similarity_style"] = face_properties["style"]
                 image_face["similarity_face_url"] = face_properties["data_uri"]
                 save_user_face(image_face)
