@@ -60,6 +60,7 @@ class FaceSimilarity(restful.Resource):
                 symmetries.append(face_props["symmetry"])
                 # Saving the info to the database
                 image_face["image_uuid"] = image_id
+                image_face["image_url"] = image_url
                 image_face["image_filename"] = image_name
                 image_face["painting_age"] = face_props["painting_age"]
                 image_face["painting_style"] = face_props["painting_style"]
