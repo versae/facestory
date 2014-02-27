@@ -1,6 +1,6 @@
 /*jshint
     forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true,
-    undef:true, curly:true, browser:true, indent:4, maxerr:50, strict:false
+    undef:true, curly:true, browser:true, indent:4, maxerr:50, strict:true
 */
 
 /*global
@@ -25,6 +25,7 @@
         tryagainBtn: '#tryagain-btn',
         message: '#message',
         progressBar: '#progress-bar',
+        photo: '#photo',
         results: '#results'
     };
     // This will hold the video stream.
@@ -43,6 +44,7 @@
         // Get the canvas context.
         ctx: canvas.getContext('2d'),
         // Get the capture button.
+        photo: document.querySelector(options.photo),
         captureBtn: document.querySelector(options.captureBtn),
         tryagainBtn: document.querySelector(options.tryagainBtn),
         message: document.querySelector(options.message),
@@ -55,8 +57,20 @@
             "#00CC00", "#269926", "#008500", "#39E639", "#67E667"
         ],
 
-
         initialize: function () {
+            var that = this;
+            if (this.photo.value === "") {
+                this.loadUserMedia();
+            } else {
+                this.loadPhoto(this.photo.value);
+            }
+
+            this.tryagainBtn.onclick = function () {
+                that.tryagain();
+            }
+        },
+
+        loadUserMedia: function () {
             var that = this;
             // Check if navigator object contains getUserMedia object.
             navigator.getUserMedia = (
@@ -80,10 +94,6 @@
             } else {
                 // No getUserMedia support.
                 alert('Your browser does not support getUserMedia API.');
-            }
-
-            this.tryagainBtn.onclick = function () {
-                that.tryagain();
             }
         },
 
@@ -122,8 +132,17 @@
                 $(options.video).toggle();
                 $(options.captureBtn).toggle();
                 $(options.progressBar).toggle();
-                that.saveDataUrlToImage();
+                that.calculateSimilarities();
             }
+        },
+
+        loadPhoto: function (photoId) {
+            $(options.canvas).toggle();
+            $(options.video).toggle();
+            $(options.captureBtn).toggle();
+            $(options.progressBar).toggle();
+            this.calculateSimilarities(photoId);
+
         },
 
         tryagain: function () {
@@ -136,56 +155,38 @@
             $('.similar-face').remove();
         },
 
-        saveDataUrlToImage: function () {
-            var that = this, container = $(options.results);
+        calculateSimilarities: function (photoId) {
+            var data, type, that = this;
             // Only place where we need jQuery to make an ajax request
             // to our server to convert the dataURL to a PNG image,
             // and return the url of the converted image.
+            if (photoId !== "") {
+                type = "GET";
+                data = { 'photo_id': photoId };
+            } else {
+                type = "POST";
+                data = { 'data_uri': dataURL };
+            }
             $.ajax({
                 url: '/api/similarity',
-                type: 'POST',
+                type: type,
                 dataType: 'json',
-                data: { 'data_uri': dataURL },
+                data: data,
                 // Request was successful.
                 success: function (data, textStatus, xhr) {
                     console.log('data: ', data);
-                    console.log('xhr: ', xhr);
+                    var image;
                     if (data.message === 'OK') {
+                        if (data.image_url !== '') {
+                            image = new Image();
+                            image.src = data.image_url;
+                            image.onload = function(){
+                                that.ctx.drawImage(image, 0, 0);
+                            }
+                        }
                         //imageURL = data.image_url;
-                        $(data.faces.tags).each(function (index, item) {
-                            var faceTag, faceDataUri, faceSpan, faceDiv, symmetryInfo;
-                            symmetryInfo = "<br> " +
-                                "<em>Your symmetry index is <strong>~" +
-                                parseInt(100 * (1 - data.symmetries[index])) + "%</strong></em>";
-                            faceDataUri = data.urls[index];
-                            faceDiv = $("<div/>");
-                            faceDiv.addClass("similar-face");
-                            faceDiv.css({
-                                'background-color': that.hexToRgb(that.colors[index], 0.25),
-                            });
-                            faceTag = $("<img/>");
-                            faceTag.addClass("similar-face");
-                            faceTag.attr("src", faceDataUri);
-                            faceTag.css({
-                                'border-color': that.colors[index]
-                            });
-                            faceDiv.append(faceTag);
-                            faceSpan = $("<span/>");
-                            faceSpan.addClass("similar-face");
-                            // Not show the symmetry index information
-                            symmetryInfo = ""
-                            faceSpan.html("That's a perfect face for the <strong> Century " +
-                                          that.getCentury(data.ages[index]) +
-                                          "</strong><br>More exactly one from the <strong>" +
-                                          data.styles[index] + "</strong> style" + symmetryInfo);
-                            faceDiv.append(faceSpan);
-                            that.drawTags(
-                                data.faces.width,
-                                data.faces.height,
-                                item.points,
-                                index
-                            );
-                            container.append(faceDiv);
+                        $(data.faces).each(function (index, item) {
+                            that.iterateFaces(index, item);
                         });
                         $(options.tryagainBtn).show();
                         $(options.progressBar).hide();
@@ -201,6 +202,41 @@
             });
         },
 
+        iterateFaces: function (index, item) {
+            var faceTag, faceSpan, faceDiv, symmetryInfo, container = $(options.results);
+            symmetryInfo = "<br> " +
+                "<em>Your symmetry index is <strong>~" +
+                parseInt(100 * (1 - item.face_symmetry)) + "%</strong></em>";
+            faceDiv = $("<div/>");
+            faceDiv.addClass("similar-face");
+            faceDiv.css({
+                'background-color': this.hexToRgb(this.colors[index], 0.25),
+            });
+            faceTag = $("<img/>");
+            faceTag.addClass("similar-face");
+            faceTag.attr("src", item.face_url);
+            faceTag.css({
+                'border-color': this.colors[index]
+            });
+            faceDiv.append(faceTag);
+            faceSpan = $("<span/>");
+            faceSpan.addClass("similar-face");
+            // Don't show the symmetry index information
+            symmetryInfo = "";
+            faceSpan.html("That's a perfect face for the <strong> Century " +
+                          this.getCentury(item.painting_age) +
+                          "</strong><br>More exactly one from the <strong>" +
+                          item.painting_style + "</strong> style" + symmetryInfo);
+            faceDiv.append(faceSpan);
+            this.drawTags(
+                item.image_width,
+                item.image_height,
+                item.points,
+                index
+            );
+            container.append(faceDiv);
+        },
+
         drawTags: function (widthPct, heightPect, tags, face_index) {
             var that = this;
             $(tags).each(function (index, item) {
@@ -209,7 +245,6 @@
                     left = parseInt(widthPct * item.x / 100, 10) + offset.left,
                     top = parseInt(heightPect * item.y / 100, 10) + offset.top;
                 tagSpan.addClass('tag-point');
-                console.log(that.colors[index])
                 // tagSpan.hide();
                 tagSpan.attr('style', 'top: ' + top + 'px; ' +
                                       'left: ' + left + 'px;');

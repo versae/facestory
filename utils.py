@@ -35,7 +35,7 @@ def get_face_properties(pil_image, face_features):
     """Calculate simmetry of a face and get then information of the painting
     with the closest value"""
     # Point 810 is person mouth_right, 822 mouth_left
-    painting_width, painting_height = pil_image.size
+    image_width, image_height = pil_image.size
     for point in face_features["points"]:
         if point["id"] == 810:
             face_features["mouth_right"] = point
@@ -48,7 +48,7 @@ def get_face_properties(pil_image, face_features):
     features_set = set(face_features.keys())
     if set(["mouth_right", "mouth_left", "mouth_center", "nose",
             "eye_right", "eye_left", "roll", "center"]).issubset(features_set):
-        symmetry = get_symmetry(face_features, painting_width, painting_height)
+        symmetry = get_symmetry(face_features, image_width, image_height)
         gender = None
         if "gender" in face_features["attributes"]:
             gender = face_features["attributes"]["gender"]["value"]
@@ -136,5 +136,14 @@ def save_file_remote(filename, file_object, headers=None):
     k.key = filename
     num_bytes = k.set_contents_from_string(file_object, headers=headers)
     if not num_bytes:
+        return None
+    return k.generate_url(expires_in=30)
+
+
+def get_file_remote(filename, headers=None):
+    conn = connect_s3()
+    bucket = conn.get_bucket(AWS_STORAGE_BUCKET_NAME)
+    k = bucket.get_key(filename, headers=headers)
+    if not k:
         return None
     return k.generate_url(expires_in=30)

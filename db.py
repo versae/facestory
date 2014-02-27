@@ -52,4 +52,14 @@ def get_closest_face_in_painting(symmetry, gender=None):
 
 
 def save_user_face(face_features):
+    """Save a features set of a face in database"""
     db["users"].insert(face_features)
+
+
+def get_user_face(image_uuid=None):
+    """Retrieve a feature set of a face from database"""
+    user_faces = []
+    for user_face in db["users"].find({"image_uuid": image_uuid}):
+        user_face.pop("_id")
+        user_faces.append(user_face)
+    return user_faces

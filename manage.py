@@ -9,8 +9,14 @@ add_api(app)
 
 
 @app.route('/')
-def home():
-    return render_template('home.html')
+@app.route('/<photo_id>')
+def home(photo_id=None):
+    if not photo_id:
+        photo_id = ""
+    return render_template(
+        'home.html',
+        photo_id=photo_id,
+    )
 
 
 @app.route('/about')
