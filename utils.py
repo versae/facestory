@@ -52,19 +52,18 @@ def get_face_properties(pil_image, face_features):
         gender = None
         if "gender" in face_features["attributes"]:
             gender = face_features["attributes"]["gender"]["value"]
-        painting = get_closest_face_in_painting(symmetry, gender=gender)
+        face = get_closest_face_in_painting(symmetry, gender=gender)
         return {
-            'age': painting["age"],
-            'age_number': painting["age_number"],
-            'style': painting["style"],
+            'painting_age': face["painting_age"],
+            'painting_style': face["painting_style"],
             'symmetry': symmetry,
-            'data_uri': painting["url"],
+            'url': face["url"],
         }
     return {
-        'age': None,
-        'style': None,
+        'painting_age': None,
+        'painting_style': None,
         'symmetry': None,
-        'data_uri': None,
+        'url': None,
     }
 
 

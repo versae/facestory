@@ -19,18 +19,18 @@ def get_closest_face_in_painting(symmetry, gender=None):
     pipeline += [
         {"$project": {
             "id": "$id",
-            "age": "$painting_age",
-            "age_number": "$painting_age_number",
-            "style": "$painting_style",
+            "painting_url": "$painting_url",
+            "painting_age": "$painting_age_number",
+            "painting_style": "$painting_style",
             "url": "$face_url",
             "symmetry": "$symmetry",
             "symmetry_diff": {"$subtract": ["$symmetry", symmetry]},
         }},
         {"$project": {
             "id": "$id",
-            "age": "$age",
-            "age_number": "$age_number",
-            "style": "$style",
+            "painting_url": "$painting_url",
+            "painting_age": "$painting_age",
+            "painting_style": "$painting_style",
             "url": "$url",
             "symmetry": "$symmetry",
             "diff": {
@@ -46,7 +46,9 @@ def get_closest_face_in_painting(symmetry, gender=None):
     if "ok" in documents:
         document = documents["result"][0]
         document.pop("_id")
-    return document
+        return document
+    else:
+        return None
 
 
 def save_user_face(face_features):

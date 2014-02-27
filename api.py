@@ -17,9 +17,6 @@ from settings import PROJECT_ROOT
 
 class FaceSimilarity(restful.Resource):
 
-    def get(self):
-        return {'hello': 'world'}
-
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('data_uri', type=str, required=True,
@@ -50,22 +47,24 @@ class FaceSimilarity(restful.Resource):
         image_faces = get_image_faces(io.BytesIO(image_base64))
         ages = []
         styles = []
-        data_uris = []
+        urls = []
         symmetries = []
         if not image_faces or len(image_faces['tags']) == 0:
             message = u"No faces found"
         else:
             for image_face in image_faces['tags']:
-                face_properties = get_face_properties(image, image_face)
-                ages.append(face_properties["age_number"])
-                styles.append(face_properties["style"])
-                data_uris.append(face_properties["data_uri"])
-                symmetries.append(face_properties["symmetry"])
+                face_props = get_face_properties(image, image_face)
+                ages.append(face_props["painting_age"])
+                styles.append(face_props["painting_style"])
+                urls.append(face_props["url"])
+                symmetries.append(face_props["symmetry"])
                 # Saving the info to the database
-                image_face["uuid"] = image_id
-                image_face["similarity_age"] = face_properties["age_number"]
-                image_face["similarity_style"] = face_properties["style"]
-                image_face["similarity_face_url"] = face_properties["data_uri"]
+                image_face["image_uuid"] = image_id
+                image_face["image_filename"] = image_name
+                image_face["painting_age"] = face_props["painting_age"]
+                image_face["painting_style"] = face_props["painting_style"]
+                image_face["face_url"] = face_props["url"]
+                image_face["face_symmetry"] = face_props["symmetry"]
                 save_user_face(image_face)
                 image_face.pop("_id")  # added by pymongo
         return {
@@ -76,7 +75,7 @@ class FaceSimilarity(restful.Resource):
             'faces': image_faces,
             'ages': ages,
             'styles': styles,
-            'data_uris': data_uris,
+            'urls': urls,
             'symmetries': symmetries,
         }
 

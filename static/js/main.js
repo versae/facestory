@@ -48,6 +48,13 @@
         message: document.querySelector(options.message),
         progressBar: document.querySelector(options.progressBar),
         results: document.querySelector(options.results),
+        colors: [
+            "#e4d00a",
+            "#FF7400", "#BF7130", "#A64B00", "#FF9640", "#FFB273",
+            "#CD0074", "#992667", "#85004B", "#E6399B", "#E667AF",
+            "#00CC00", "#269926", "#008500", "#39E639", "#67E667"
+        ],
+
 
         initialize: function () {
             var that = this;
@@ -146,24 +153,39 @@
                     if (data.message === 'OK') {
                         //imageURL = data.image_url;
                         $(data.faces.tags).each(function (index, item) {
-                            var faceTag, faceDataUri, faceSpan;
-                            faceDataUri = data.data_uris[index];
+                            var faceTag, faceDataUri, faceSpan, faceDiv, symmetryInfo;
+                            symmetryInfo = "<br> " +
+                                "<em>Your symmetry index is <strong>~" +
+                                parseInt(100 * (1 - data.symmetries[index])) + "%</strong></em>";
+                            faceDataUri = data.urls[index];
+                            faceDiv = $("<div/>");
+                            faceDiv.addClass("similar-face");
+                            faceDiv.css({
+                                'background-color': that.hexToRgb(that.colors[index], 0.25),
+                            });
                             faceTag = $("<img/>");
                             faceTag.addClass("similar-face");
                             faceTag.attr("src", faceDataUri);
-                            container.append(faceTag);
+                            faceTag.css({
+                                'border-color': that.colors[index]
+                            });
+                            faceDiv.append(faceTag);
                             faceSpan = $("<span/>");
                             faceSpan.addClass("similar-face");
-                            faceSpan.html("You have a perfect face for the <strong> Century " +
+                            // Not show the symmetry index information
+                            symmetryInfo = ""
+                            faceSpan.html("That's a perfect face for the <strong> Century " +
                                           that.getCentury(data.ages[index]) +
                                           "</strong><br>More exactly one from the <strong>" +
-                                          data.styles[index] + "</strong> style.")
-                            container.append(faceSpan);
+                                          data.styles[index] + "</strong> style" + symmetryInfo);
+                            faceDiv.append(faceSpan);
                             that.drawTags(
                                 data.faces.width,
                                 data.faces.height,
-                                item.points
+                                item.points,
+                                index
                             );
+                            container.append(faceDiv);
                         });
                         $(options.tryagainBtn).show();
                         $(options.progressBar).hide();
@@ -179,24 +201,40 @@
             });
         },
 
-        drawTags: function (widthPct, heightPect, tags) {
-            console.log(tags);
+        drawTags: function (widthPct, heightPect, tags, face_index) {
+            var that = this;
             $(tags).each(function (index, item) {
                 var tagSpan = $('<span/>'),
                     offset = $(options.canvas).offset(),
                     left = parseInt(widthPct * item.x / 100, 10) + offset.left,
                     top = parseInt(heightPect * item.y / 100, 10) + offset.top;
                 tagSpan.addClass('tag-point');
-                tagSpan.hide();
+                console.log(that.colors[index])
+                // tagSpan.hide();
                 tagSpan.attr('style', 'top: ' + top + 'px; ' +
                                       'left: ' + left + 'px;');
                 tagSpan.attr('id', item.id);
                 $(options.canvasContainer).append(tagSpan);
+                tagSpan.css({
+                    'border-color': that.colors[face_index],
+                    'background-color': that.colors[face_index],
+                });
             });
         },
 
         getCentury: function(century) {
             return century + "<sup>th</sup>";
+        },
+
+        hexToRgb: function(hex, alpha) {
+            var r, g, b, result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (result) {
+                r = parseInt(result[1], 16);
+                g = parseInt(result[2], 16);
+                b = parseInt(result[3], 16);
+                return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")"
+            }
+            return hex;
         },
 
         showMessage: function (message) {
