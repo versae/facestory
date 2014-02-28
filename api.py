@@ -21,17 +21,22 @@ class FaceSimilarity(restful.Resource):
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('photo_id', type=str, required=True,
-                            help='Data URI with the image of a face')
+                            help='Photo UUID to retrieve')
+        parser.add_argument('include_data_uri', type=bool, required=False,
+                            default=True, help='Photo UUID to retrieve')
         args = parser.parse_args()
         photo_id = args["photo_id"]
+        include_data_uri = args["include_data_uri"]
         if photo_id:
             faces = get_user_face(photo_id)
             photo_filename = "{}.png".format(photo_id)
+            image_data_uri = get_file_remote(photo_filename,
+                                             data_uri=include_data_uri)
             if faces:
                 return {
                     "faces": faces,
                     "message": "OK",
-                    "image_url": get_file_remote(photo_filename),
+                    "image_data_uri": image_data_uri,
                 }
         return {
             "faces": [],

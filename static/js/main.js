@@ -25,7 +25,7 @@
         tryagainBtn: '#tryagain-btn',
         message: '#message',
         progressBar: '#progress-bar',
-        photo: '#photo',
+        photo: '#photo-id',
         results: '#results'
     };
     // This will hold the video stream.
@@ -36,6 +36,7 @@
     var imageURL = null;
     // Our object that will hold all of the functions.
     var App = {
+        share: true,
         // Get the video element.
         video: document.querySelector(options.video),
         // Get the canvas element.
@@ -63,6 +64,9 @@
                 this.loadUserMedia();
             } else {
                 this.loadPhoto(this.photo.value);
+            }
+            if (location.hash.substr(1).split("&").indexOf("noshare") >= 0) {
+                this.share = false;
             }
 
             this.tryagainBtn.onclick = function () {
@@ -146,13 +150,17 @@
         },
 
         tryagain: function () {
-            $(options.canvas).hide();
-            $(options.video).show();
-            $(options.captureBtn).show();
-            $(options.tryagainBtn).hide();
-            $(options.message).hide();
-            $('.tag-point').remove();
-            $('.similar-face').remove();
+            if (this.photo.value !== "") {
+                window.location.href = location.origin;
+            } else {
+                $(options.canvas).hide();
+                $(options.video).show();
+                $(options.captureBtn).show();
+                $(options.tryagainBtn).hide();
+                $(options.message).hide();
+                $('.tag-point').remove();
+                $('.similar-face').remove();
+            }
         },
 
         calculateSimilarities: function (photoId) {
@@ -160,9 +168,12 @@
             // Only place where we need jQuery to make an ajax request
             // to our server to convert the dataURL to a PNG image,
             // and return the url of the converted image.
-            if (photoId != null && !photoId.isEmpty()) {
+            if (photoId != null && photoId !== '') {
                 type = "GET";
-                payload = { 'photo_id': photoId };
+                payload = {
+                    'photo_id': photoId,
+                    'include_data_uri': true
+                 };
             } else {
                 type = "POST";
                 payload = { 'data_uri': dataURL };
@@ -177,14 +188,13 @@
                     console.log('data: ', data);
                     var image;
                     if (data.message === 'OK') {
-                        if (type === "GET" && data.image_url !== '') {
+                        if (type === "GET" && data.image_data_uri !== '') {
                             image = new Image();
-                            image.src = data.image_url;
+                            image.src = "data:" + data.image_data_uri;
                             image.onload = function(){
                                 that.ctx.drawImage(image, 0, 0);
                             }
                         }
-                        //imageURL = data.image_url;
                         $(data.faces).each(function (index, item) {
                             that.iterateFaces(index, item);
                         });

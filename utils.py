@@ -140,10 +140,16 @@ def save_file_remote(filename, file_object, headers=None):
     return k.generate_url(expires_in=30)
 
 
-def get_file_remote(filename, headers=None):
+def get_file_remote(filename, data_uri=False, headers=None):
     conn = connect_s3()
     bucket = conn.get_bucket(AWS_STORAGE_BUCKET_NAME)
     k = bucket.get_key(filename, headers=headers)
     if not k:
         return None
-    return k.generate_url(expires_in=30)
+    if data_uri:
+        file_string = k.get_contents_as_string(headers=headers)
+        file_base64 = file_string.encode('base64')
+        file_data_uri = r'image/png;base64,{}'.format(file_base64)
+        return file_data_uri
+    else:
+        return k.generate_url(expires_in=30)
