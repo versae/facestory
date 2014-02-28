@@ -156,28 +156,28 @@
         },
 
         calculateSimilarities: function (photoId) {
-            var data, type, that = this;
+            var payload, type, that = this;
             // Only place where we need jQuery to make an ajax request
             // to our server to convert the dataURL to a PNG image,
             // and return the url of the converted image.
-            if (photoId !== "") {
+            if (photoId != null && !photoId.isEmpty()) {
                 type = "GET";
-                data = { 'photo_id': photoId };
+                payload = { 'photo_id': photoId };
             } else {
                 type = "POST";
-                data = { 'data_uri': dataURL };
+                payload = { 'data_uri': dataURL };
             }
             $.ajax({
                 url: '/api/similarity',
                 type: type,
                 dataType: 'json',
-                data: data,
+                data: payload,
                 // Request was successful.
                 success: function (data, textStatus, xhr) {
                     console.log('data: ', data);
                     var image;
                     if (data.message === 'OK') {
-                        if (data.image_url !== '') {
+                        if (type === "GET" && data.image_url !== '') {
                             image = new Image();
                             image.src = data.image_url;
                             image.onload = function(){
