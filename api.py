@@ -37,11 +37,13 @@ class FaceSimilarity(restful.Resource):
                     "faces": faces,
                     "message": "OK",
                     "image_data_uri": image_data_uri,
+                    "image_id": photo_id,
                 }
         return {
             "faces": [],
             "message": "Invalid photo id",
-            "image_url": "",
+            "image_data_uri": "",
+            "image_id": ""
         }
 
     def post(self):
@@ -94,13 +96,14 @@ class FaceSimilarity(restful.Resource):
                 image_face["image_height"] = image_height
                 image_face["painting_age"] = face_props["painting_age"]
                 image_face["painting_style"] = face_props["painting_style"]
-                image_face["face_id"] = image_id
+                image_face["face_id"] = face_props["id"]
                 image_face["face_url"] = face_props["url"]
                 image_face["face_symmetry"] = face_props["symmetry"]
                 save_user_face(image_face)
                 image_face.pop("_id")  # added by pymongo
         return {
             'image_url': image_url,
+            'image_id': image_id,
             'host': request.host,
             'message': message,
             'error': error,

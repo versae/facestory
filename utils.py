@@ -56,6 +56,7 @@ def get_face_properties(pil_image, face_features):
         return {
             'painting_age': face["painting_age"],
             'painting_style': face["painting_style"],
+            'id': face["id"],
             'symmetry': symmetry,
             'url': face["url"],
         }
@@ -64,6 +65,7 @@ def get_face_properties(pil_image, face_features):
         'painting_style': None,
         'symmetry': None,
         'url': None,
+        'id': None,
     }
 
 

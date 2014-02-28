@@ -26,6 +26,8 @@
         message: '#message',
         progressBar: '#progress-bar',
         photo: '#photo-id',
+        shareThis: '#share-this',
+        shareURL: '#url-to-share',
         results: '#results'
     };
     // This will hold the video stream.
@@ -46,6 +48,8 @@
         ctx: canvas.getContext('2d'),
         // Get the capture button.
         photo: document.querySelector(options.photo),
+        shareThis: document.querySelector(options.shareThis),
+        shareURL: document.querySelector(options.shareURL),
         captureBtn: document.querySelector(options.captureBtn),
         tryagainBtn: document.querySelector(options.tryagainBtn),
         message: document.querySelector(options.message),
@@ -158,6 +162,7 @@
                 $(options.captureBtn).show();
                 $(options.tryagainBtn).hide();
                 $(options.message).hide();
+                $(options.shareThis).hide();
                 $('.tag-point').remove();
                 $('.similar-face').remove();
             }
@@ -199,6 +204,10 @@
                             that.iterateFaces(index, item);
                         });
                         $(options.tryagainBtn).show();
+                        if (data.image_id !== '') {
+                            $(options.shareURL).val(window.location.origin + "/" + data.image_id);
+                            $(options.shareThis).show();
+                        }
                         $(options.progressBar).hide();
                     } else {
                         that.showMessage('Ups, something went wrong. Try again!');
