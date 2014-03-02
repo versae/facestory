@@ -67,6 +67,7 @@
             }
             if (location.hash.substr(1).split('&').indexOf('noshare') >= 0) {
                 this.share = false;
+                $(options.shareThis).hide();
             }
 
             this.tryagainBtn.onclick = function () {
