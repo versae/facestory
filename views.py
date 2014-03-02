@@ -1,8 +1,8 @@
 from flask import Flask
 from flask import render_template
 
+from db import get_user_face
 from api import add_api
-from utils import get_file_remote
 
 
 app = Flask(__name__)
@@ -12,11 +12,13 @@ add_api(app)
 @app.route('/')
 @app.route('/<photo_id>')
 def home(photo_id=None):
+    photo_url = None
     if not photo_id:
         photo_id = ""
     else:
-        photo_filename = "{}.png".format(photo_id)
-        photo_url = get_file_remote(photo_filename)
+        user_faces = get_user_face(photo_id)
+        if user_faces:
+            photo_url = user_faces[0]['face_url']
     return render_template(
         'home.html',
         photo_id=photo_id,

@@ -1,5 +1,14 @@
 {% extends "index.html" %}
 
+{% block extra_meta %}
+{{ super() }}
+    {% if photo_url %}
+    <meta property="og:image" content="{{ photo_url }}" />
+    {% else %}
+    <meta property="og:image" content="http://projects.cultureplex.ca/faces/101.png" />
+    {% endif %}
+{% endblock %}
+
 {% block active_home %}class="active"{% endblock %}
 
 
@@ -13,9 +22,6 @@
     <video autoplay id="video" width="640" height="480"></video>
     <!-- Canvas element (screenshot) -->
     <div id="canvas-container">
-        {% if photo_url %}
-        <img src="{{ photo_url }}" alt="You previous picture" id="photo-img">
-        {% endif %}
         <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
     </div>
     </p>

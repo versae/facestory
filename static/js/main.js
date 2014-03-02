@@ -26,7 +26,6 @@
         message: '#message',
         progressBar: '#progress-bar',
         photo: '#photo-id',
-        photoImg: '#photo-img',
         shareThis: '#share-this',
         shareURL: '#url-to-share',
         results: '#results'
@@ -35,8 +34,6 @@
     var localMediaStream = null;
     // This will hold the screenshot base 64 data url.
     var dataURL = null;
-    // This will hold the converted PNG url.
-    var imageURL = null;
     // Our object that will hold all of the functions.
     var App = {
         share: true,
@@ -49,7 +46,6 @@
         ctx: canvas.getContext('2d'),
         // Get the capture button.
         photo: document.querySelector(options.photo),
-        photoImg: document.querySelector(options.photoImg),
         shareThis: document.querySelector(options.shareThis),
         shareURL: document.querySelector(options.shareURL),
         captureBtn: document.querySelector(options.captureBtn),
@@ -58,26 +54,26 @@
         progressBar: document.querySelector(options.progressBar),
         results: document.querySelector(options.results),
         colors: [
-            "#e4d00a",
-            "#FF7400", "#BF7130", "#A64B00", "#FF9640", "#FFB273",
-            "#CD0074", "#992667", "#85004B", "#E6399B", "#E667AF",
-            "#00CC00", "#269926", "#008500", "#39E639", "#67E667"
+            '#e4d00a',
+            '#FF7400', '#BF7130', '#A64B00', '#FF9640', '#FFB273',
+            '#CD0074', '#992667', '#85004B', '#E6399B', '#E667AF',
+            '#00CC00', '#269926', '#008500', '#39E639', '#67E667'
         ],
 
         initialize: function () {
             var that = this;
-            if (this.photo.value === "") {
+            if (this.photo.value === '') {
                 this.loadUserMedia();
             } else {
                 this.loadPhoto(this.photo.value);
             }
-            if (location.hash.substr(1).split("&").indexOf("noshare") >= 0) {
+            if (location.hash.substr(1).split('&').indexOf('noshare') >= 0) {
                 this.share = false;
             }
 
             this.tryagainBtn.onclick = function () {
                 that.tryagain();
-            }
+            };
         },
 
         loadUserMedia: function () {
@@ -156,7 +152,7 @@
         },
 
         tryagain: function () {
-            if (this.photo.value !== "") {
+            if (this.photo.value !== '') {
                 window.location.href = location.origin;
             } else {
                 $(options.canvas).hide();
@@ -176,13 +172,13 @@
             // to our server to convert the dataURL to a PNG image,
             // and return the url of the converted image.
             if (photoId != null && photoId !== '') {
-                type = "GET";
+                type = 'GET';
                 payload = {
                     'photo_id': photoId,
                     'include_data_uri': true
-                 };
+                };
             } else {
-                type = "POST";
+                type = 'POST';
                 payload = { 'data_uri': dataURL };
             }
             $.ajax({
@@ -195,25 +191,26 @@
                     console.log('data: ', data);
                     var image;
                     if (data.message === 'OK') {
-                        if (type === "GET" && data.image_data_uri !== '') {
-                            $(options.photoImg).hide()
+                        if (type === 'GET' && data.image_data_uri !== '') {
                             image = new Image();
-                            image.src = "data:" + data.image_data_uri;
-                            image.onload = function(){
+                            image.src = 'data:' + data.image_data_uri;
+                            image.onload = function () {
                                 that.ctx.drawImage(image, 0, 0);
-                            }
+                            };
                         }
                         $(data.faces).each(function (index, item) {
                             that.iterateFaces(index, item);
                         });
                         $(options.tryagainBtn).show();
-                        if (data.image_id !== '') {
-                            $(options.shareURL).val(window.location.origin + "/" + data.image_id);
+                        if (data.image_id !== '' && that.share) {
+                            $(options.shareURL).val(window.location.origin +
+                                                    '/' + data.image_id);
                             $(options.shareThis).show();
                         }
                         $(options.progressBar).hide();
                     } else {
-                        that.showMessage('Ups, something went wrong. Try again!');
+                        that.showMessage('Ups, something went wrong. ' +
+                                         'Try again!');
                     }
                 },
                 error: function (xhr, textStatus, errorThrown) {
@@ -225,30 +222,32 @@
         },
 
         iterateFaces: function (index, item) {
-            var faceTag, faceSpan, faceDiv, symmetryInfo, container = $(options.results);
-            symmetryInfo = "<br> " +
-                "<em>Your symmetry index is <strong>~" +
-                parseInt(100 * (1 - item.face_symmetry)) + "%</strong></em>";
-            faceDiv = $("<div/>");
-            faceDiv.addClass("similar-face");
+            var faceTag, faceSpan, faceDiv, symmetryInfo,
+                container = $(options.results);
+            symmetryInfo = '<br> ' +
+                '<em>Your symmetry index is <strong>~' +
+                parseInt(100 * (1 - item.face_symmetry)) + '%</strong></em>';
+            faceDiv = $('<div/>');
+            faceDiv.addClass('similar-face');
             faceDiv.css({
                 'background-color': this.hexToRgb(this.colors[index], 0.25),
             });
-            faceTag = $("<img/>");
-            faceTag.addClass("similar-face");
-            faceTag.attr("src", item.face_url);
+            faceTag = $('<img/>');
+            faceTag.addClass('similar-face');
+            faceTag.attr('src', item.face_url);
             faceTag.css({
                 'border-color': this.colors[index]
             });
             faceDiv.append(faceTag);
-            faceSpan = $("<span/>");
-            faceSpan.addClass("similar-face");
+            faceSpan = $('<span/>');
+            faceSpan.addClass('similar-face');
             // Don't show the symmetry index information
-            symmetryInfo = "";
-            faceSpan.html("That's a perfect face for the <strong> Century " +
+            symmetryInfo = '';
+            faceSpan.html('That\'s a perfect face for the <strong> Century ' +
                           this.getCentury(item.painting_age) +
-                          "</strong><br>More exactly one from the <strong>" +
-                          item.painting_style + "</strong> style" + symmetryInfo);
+                          '</strong><br>More exactly one from the <strong>' +
+                          item.painting_style + '</strong> style' +
+                          symmetryInfo);
             faceDiv.append(faceSpan);
             this.drawTags(
                 item.image_width,
@@ -259,7 +258,7 @@
             container.append(faceDiv);
         },
 
-        drawTags: function (widthPct, heightPect, tags, face_index) {
+        drawTags: function (widthPct, heightPect, tags, faceIndex) {
             var that = this;
             $(tags).each(function (index, item) {
                 var tagSpan = $('<span/>'),
@@ -273,23 +272,24 @@
                 tagSpan.attr('id', item.id);
                 $(options.canvasContainer).append(tagSpan);
                 tagSpan.css({
-                    'border-color': that.colors[face_index],
-                    'background-color': that.colors[face_index],
+                    'border-color': that.colors[faceIndex],
+                    'background-color': that.colors[faceIndex],
                 });
             });
         },
 
-        getCentury: function(century) {
-            return century + "<sup>th</sup>";
+        getCentury: function (century) {
+            return century + '<sup>th</sup>';
         },
 
-        hexToRgb: function(hex, alpha) {
-            var r, g, b, result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        hexToRgb: function (hex, alpha) {
+            var r, g, b,
+                result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             if (result) {
                 r = parseInt(result[1], 16);
                 g = parseInt(result[2], 16);
                 b = parseInt(result[3], 16);
-                return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")"
+                return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
             }
             return hex;
         },
