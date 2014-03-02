@@ -27,7 +27,6 @@
         progressBar: '#progress-bar',
         photo: '#photo-id',
         shareThis: '#share-this',
-        shareURL: '#url-to-share',
         results: '#results'
     };
     // This will hold the video stream.
@@ -47,7 +46,6 @@
         // Get the capture button.
         photo: document.querySelector(options.photo),
         shareThis: document.querySelector(options.shareThis),
-        shareURL: document.querySelector(options.shareURL),
         captureBtn: document.querySelector(options.captureBtn),
         tryagainBtn: document.querySelector(options.tryagainBtn),
         message: document.querySelector(options.message),
@@ -203,8 +201,10 @@
                         });
                         $(options.tryagainBtn).show();
                         if (data.image_id !== '' && that.share) {
-                            $(options.shareURL).val(window.location.origin +
-                                                    '/' + data.image_id);
+                            $(options.shareThis).attr(
+                                'data-href',
+                                window.location.origin + '/' + data.image_id
+                            );
                             $(options.shareThis).show();
                         }
                         $(options.progressBar).hide();
