@@ -26,6 +26,7 @@
         message: '#message',
         progressBar: '#progress-bar',
         photo: '#photo-id',
+        photoImg: '#photo-img',
         shareThis: '#share-this',
         shareURL: '#url-to-share',
         results: '#results'
@@ -48,6 +49,7 @@
         ctx: canvas.getContext('2d'),
         // Get the capture button.
         photo: document.querySelector(options.photo),
+        photoImg: document.querySelector(options.photoImg),
         shareThis: document.querySelector(options.shareThis),
         shareURL: document.querySelector(options.shareURL),
         captureBtn: document.querySelector(options.captureBtn),
@@ -194,6 +196,7 @@
                     var image;
                     if (data.message === 'OK') {
                         if (type === "GET" && data.image_data_uri !== '') {
+                            $(options.photoImg).hide()
                             image = new Image();
                             image.src = "data:" + data.image_data_uri;
                             image.onload = function(){
