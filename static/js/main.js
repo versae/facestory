@@ -60,19 +60,24 @@
 
         initialize: function () {
             var that = this;
-            if (this.photo.value === '') {
-                this.loadUserMedia();
-            } else {
-                this.loadPhoto(this.photo.value);
-            }
-            if (location.hash.substr(1).split('&').indexOf('noshare') >= 0) {
+            if (location.hash.substr(1).split('&').indexOf('exhibit') >= 0) {
+                // Exhibit mode
                 this.share = false;
                 $(options.shareThis).hide();
+                $("body").css({
+                    // "overflow": "hidden",
+                    // "padding-top": "0px"
+                });
             } else {
                 $(options.shareThis).attr(
                     'href',
                     that.getShareURL(window.location.origin)
                 );
+            }
+            if (this.photo.value === '') {
+                this.loadUserMedia();
+            } else {
+                this.loadPhoto(this.photo.value);
             }
 
             this.tryagainBtn.onclick = function () {
@@ -203,7 +208,7 @@
                             };
                         }
                         $(data.faces).each(function (index, item) {
-                            that.iterateFaces(index, item);
+                            that.iterateFaces(index, item, data.faces.length);
                         });
                         $(options.tryagainBtn).show();
                         if (data.image_id !== '' && that.share) {
@@ -227,9 +232,9 @@
             });
         },
 
-        iterateFaces: function (index, item) {
-            var faceTag, faceSpan, faceDiv, symmetryInfo,
-                container = $(options.results);
+        iterateFaces: function (index, item, length) {
+            var faceTag, faceTagPoints, faceSpan, faceDiv, symmetryInfo,
+                container = $(options.results), i = 0;
             symmetryInfo = '<br> ' +
                 '<em>Your symmetry index is <strong>~' +
                 parseInt(100 * (1 - item.face_symmetry)) + '%</strong></em>';
@@ -254,6 +259,7 @@
                           '</strong>.<br> More exactly one from the <strong>' +
                           item.painting_style + '</strong> style.' +
                           symmetryInfo);
+            faceDiv.hide();
             faceDiv.append(faceSpan);
             this.drawTags(
                 item.image_width,
@@ -261,6 +267,19 @@
                 item.points,
                 index
             );
+            // Show tag points sequentially
+            faceTagPoints = $('.tag-point').hide();
+            (function displayImages() {
+                 faceTagPoints.eq(i++).fadeIn(50, displayImages);
+                 if (index === length - 1 && i === faceTagPoints.length - 1) {
+                    $('div.similar-face').fadeIn('slow');
+                    // Scroll to the bottom
+                    $('html').animate({
+                        'scrollTop': $(document).height()
+                    }, 'slow');
+                 }
+            })();
+
             container.append(faceDiv);
         },
 
