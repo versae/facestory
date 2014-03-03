@@ -162,7 +162,8 @@
 
         tryagain: function () {
             if (this.photo.value !== '') {
-                window.location.href = location.origin;
+                window.location.href = window.location.origin +
+                                       window.location.hash;
             } else {
                 $(options.canvas).hide();
                 $(options.video).show();
@@ -210,7 +211,6 @@
                         $(data.faces).each(function (index, item) {
                             that.iterateFaces(index, item, data.faces.length);
                         });
-                        $(options.tryagainBtn).show();
                         if (data.image_id !== '' && that.share) {
                             shareURL = that.getShareURL(
                                 window.location.origin + '/' + data.image_id
@@ -218,7 +218,6 @@
                             $(options.shareThis).attr('href', shareURL);
                             $(options.shareThis).show();
                         }
-                        $(options.progressBar).hide();
                     } else {
                         that.showMessage('Ups, something went wrong. ' +
                                          'Try again!');
@@ -234,7 +233,7 @@
 
         iterateFaces: function (index, item, length) {
             var faceTag, faceTagPoints, faceSpan, faceDiv, symmetryInfo,
-                container = $(options.results), i = 0;
+                container = $(options.results), i = 0, that = this;
             symmetryInfo = '<br> ' +
                 '<em>Your symmetry index is <strong>~' +
                 parseInt(100 * (1 - item.face_symmetry)) + '%</strong></em>';
@@ -270,16 +269,11 @@
             // Show tag points sequentially
             faceTagPoints = $('.tag-point').hide();
             (function displayImages() {
-                 faceTagPoints.eq(i++).fadeIn(50, displayImages);
-                 if (index === length - 1 && i === faceTagPoints.length - 1) {
-                    $('div.similar-face').fadeIn('slow');
-                    // Scroll to the bottom
-                    $('html').animate({
-                        'scrollTop': $(document).height()
-                    }, 'slow');
-                 }
+                faceTagPoints.eq(i++).fadeIn(50, displayImages);
+                if (index === length - 1 && i === faceTagPoints.length - 1) {
+                    that.showResults();
+                }
             })();
-
             container.append(faceDiv);
         },
 
@@ -301,6 +295,16 @@
                     'background-color': that.colors[faceIndex],
                 });
             });
+        },
+
+        showResults: function () {
+            $('div.similar-face').fadeIn('slow');
+            // Scroll to the bottom
+            $('html').animate({
+                'scrollTop': $(document).height()
+            }, 'slow');
+            $(options.tryagainBtn).show();
+            $(options.progressBar).hide();
         },
 
         getShareURL: function (url) {
