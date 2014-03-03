@@ -68,6 +68,11 @@
             if (location.hash.substr(1).split('&').indexOf('noshare') >= 0) {
                 this.share = false;
                 $(options.shareThis).hide();
+            } else {
+                $(options.shareThis).attr(
+                    'href',
+                    that.getShareURL(window.location.origin)
+                );
             }
 
             this.tryagainBtn.onclick = function () {
@@ -188,7 +193,7 @@
                 // Request was successful.
                 success: function (data, textStatus, xhr) {
                     console.log('data: ', data);
-                    var image;
+                    var image, shareURL;
                     if (data.message === 'OK') {
                         if (type === 'GET' && data.image_data_uri !== '') {
                             image = new Image();
@@ -202,10 +207,10 @@
                         });
                         $(options.tryagainBtn).show();
                         if (data.image_id !== '' && that.share) {
-                            $(options.shareThis).attr(
-                                'data-href',
+                            shareURL = that.getShareURL(
                                 window.location.origin + '/' + data.image_id
                             );
+                            $(options.shareThis).attr('href', shareURL);
                             $(options.shareThis).show();
                         }
                         $(options.progressBar).hide();
@@ -246,8 +251,8 @@
             symmetryInfo = '';
             faceSpan.html('That\'s a perfect face for the <strong> Century ' +
                           this.getCentury(item.painting_age) +
-                          '</strong><br>More exactly one from the <strong>' +
-                          item.painting_style + '</strong> style' +
+                          '</strong>.<br> More exactly one from the <strong>' +
+                          item.painting_style + '</strong> style.' +
                           symmetryInfo);
             faceDiv.append(faceSpan);
             this.drawTags(
@@ -277,6 +282,25 @@
                     'background-color': that.colors[faceIndex],
                 });
             });
+        },
+
+        getShareURL: function (url) {
+            var baseURL = 'https://www.facebook.com/dialog/feed',
+                appId = '482434318528407',
+                name, caption, description;
+            name = $('meta[property=\'og:title\']').attr('content');
+            caption = $('meta[property=\'og:description\']').attr('content');
+            description = ($('span.similar-face:first').text() ||
+                           'Get yours now!');
+            // picture = $('meta[property='og:image']').attr('content');
+            return (baseURL + '?app_id=' + encodeURIComponent(appId) +
+                    '&display=page' +
+                    '&name=' + encodeURIComponent(name) +
+                    '&caption=' + encodeURIComponent(caption) +
+                    '&description=' + encodeURIComponent(description) +
+                    '&link=' + encodeURIComponent(url) +
+                    '&redirect_uri=' + encodeURIComponent(url)
+            );
         },
 
         getCentury: function (century) {
