@@ -56,3 +56,14 @@ div.similar-face {
     font-weight: normal;
     font-color: gray;
 }
+
+#tweet-this {
+    background: url('https://twitter.com/favicons/favicon.ico') 1px center no-repeat;
+    padding-left: 20px;
+}
+
+#tweet-this:hover {
+    color: #333;
+    background-color: #ebebeb;
+    border-color: #adadad;
+}

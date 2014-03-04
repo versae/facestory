@@ -27,6 +27,7 @@
         progressBar: '#progress-bar',
         photo: '#photo-id',
         shareThis: '#share-this',
+        tweetThis: '#tweet-this',
         results: '#results'
     };
     // This will hold the video stream.
@@ -46,6 +47,7 @@
         // Get the capture button.
         photo: document.querySelector(options.photo),
         shareThis: document.querySelector(options.shareThis),
+        tweetThis: document.querySelector(options.tweetThis),
         captureBtn: document.querySelector(options.captureBtn),
         tryagainBtn: document.querySelector(options.tryagainBtn),
         message: document.querySelector(options.message),
@@ -64,6 +66,7 @@
                 // Exhibit mode
                 this.share = false;
                 $(options.shareThis).hide();
+                $(options.tweetThis).hide();
                 $('*').css({
                     'cursor': 'none'
                 });
@@ -81,6 +84,10 @@
                 });
             } else {
                 $(options.shareThis).attr(
+                    'href',
+                    that.getShareURL(window.location.origin)
+                );
+                $(options.tweetThis).attr(
                     'href',
                     that.getShareURL(window.location.origin)
                 );
@@ -182,6 +189,7 @@
                 $(options.tryagainBtn).hide();
                 $(options.message).hide();
                 $(options.shareThis).hide();
+                $(options.tweetThis).hide();
                 $('.tag-point').remove();
                 $('.similar-face').remove();
             }
@@ -210,7 +218,7 @@
                 // Request was successful.
                 success: function (data, textStatus, xhr) {
                     console.log('data: ', data);
-                    var image, shareURL;
+                    var image, shareURL, tweetURL;
                     if (data.message === 'OK') {
                         if (type === 'GET' && data.image_data_uri !== '') {
                             image = new Image();
@@ -233,6 +241,11 @@
                             );
                             $(options.shareThis).attr('href', shareURL);
                             $(options.shareThis).show();
+                            tweetURL = that.getTweetURL(
+                                window.location.origin + '/' + data.image_id
+                            );
+                            $(options.tweetThis).attr('href', tweetURL);
+                            $(options.tweetThis).show();
                         }
                     } else {
                         that.showMessage('Ups, something went wrong. ' +
@@ -365,7 +378,6 @@
             caption = $('meta[property=\'og:description\']').attr('content');
             description = ($('span.similar-face:first').text() ||
                            'Get yours now!');
-            // picture = $('meta[property='og:image']').attr('content');
             return (baseURL + '?app_id=' + encodeURIComponent(appId) +
                     '&display=page' +
                     '&name=' + encodeURIComponent(name) +
@@ -373,6 +385,17 @@
                     '&description=' + encodeURIComponent(description) +
                     '&link=' + encodeURIComponent(url) +
                     '&redirect_uri=' + encodeURIComponent(url)
+            );
+        },
+
+        getTweetURL: function (url) {
+            var baseURL = 'https://twitter.com/share', text;
+            text = ($('span.similar-face:first').text() ||
+                    'Get yours face in History now!')
+                    .replace('That\'s', 'Mine is');
+            return (baseURL + '?url=' + encodeURIComponent(url) +
+                    '&text=' + encodeURIComponent(text) +
+                    '&hashtags=YourFaceInHistory'
             );
         },
 
