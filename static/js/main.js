@@ -64,9 +64,20 @@
                 // Exhibit mode
                 this.share = false;
                 $(options.shareThis).hide();
-                $("body").css({
-                    // "overflow": "hidden",
-                    // "padding-top": "0px"
+                $('*').css({
+                    'cursor': 'none'
+                });
+                $('body').css({
+                    'overflow': 'hidden',
+                    // 'padding-top': '0px'
+                });
+                $(this.tryagainBtn).html('Touch the Screen to Try Again');
+                $(this.captureBtn).html('Touch the Screen to Shot!');
+                $(document).click(function(e) {
+                    // Check for left button
+                    if (e.button == 0) {
+                        $('button:visible').click();
+                    }
                 });
             } else {
                 $(options.shareThis).attr(
