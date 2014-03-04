@@ -223,10 +223,10 @@
                             that.iterateFaces(index, item, data.faces.length);
                         });
                         // Draw the picture face beside the similar face found
-                        // $(data.faces).each(function (index, item) {
-                        //     that.transformFaces(index, item,
-                        //                         data.image_data_uri);
-                        // });
+                        $(data.faces).each(function (index, item) {
+                            that.transformFaces(index, item,
+                                                data.image_data_uri);
+                        });
                         if (data.image_id !== '' && that.share) {
                             shareURL = that.getShareURL(
                                 window.location.origin + '/' + data.image_id
@@ -295,33 +295,35 @@
         },
 
         transformFaces: function (index, item, imageDataUri) {
-            var faceCanvas, faceCxt, faceImage;
+            var faceCanvas, faceCxt, faceImage, faceWidth, faceHeight,
+                faceCorner, destWidth = 279, destHeight = 279;
             faceCanvas = $('<canvas/>');
             faceCanvas.attr('id', 'canvas-face-' + index);
-            faceCanvas.attr('width', '301px');
-            faceCanvas.attr('height', '301px');
+            faceCanvas.attr('width', destWidth + 'px');
+            faceCanvas.attr('height', destHeight + 'px');
             $('#similar-face-' + index).prepend(faceCanvas);
             faceCxt = document.getElementById('canvas-face-' + index)
                       .getContext('2d');
-            console.log(faceCxt)
-                // draw cropped image
-                var sourceX = 0,
-                    sourceY = 0,
-                    sourceWidth = 300,
-                    sourceHeight = 300,
-                    destWidth = sourceWidth,
-                    destHeight = sourceHeight,
-                    destX = faceCanvas.width() / 2 - destWidth / 2,
-                    destY = faceCanvas.height() / 2 - destHeight / 2;
+            faceWidth = (item.image_width * item.width / 100) * 1.5;
+            faceHeight = (item.image_height * item.height / 100) * 1.5;
+            faceCorner = {
+                'x': (item.image_width * item.center.x / 100) - faceWidth / 2,
+                'y': (item.image_height * item.center.y / 100) - faceHeight / 2
+            };
             faceImage = new Image();
-            faceImage.src = 'data:' + imageDataUri;
+            if (!imageDataUri) {
+                faceImage.src = this.canvas.toDataURL('image/png');
+            } else {
+                faceImage.src = 'data:' + imageDataUri;
+            }
             faceImage.onload = function () {
                 faceCxt.drawImage(
                     faceImage,
-                    sourceX, sourceY,
-                    sourceWidth, sourceHeight,
-                    destWidth, destHeight,
-                    destX, destY);
+                    faceCorner.x, faceCorner.y,
+                    faceWidth, faceHeight,
+                    0, 0,
+                    279, 279
+                );
             };
         },
 

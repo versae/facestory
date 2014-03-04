@@ -21,7 +21,17 @@ body {
     font-size: 0;
 }
 
+div.similar-face {
+    display: inline-flex;
+}
+
 .similar-face img {
+    border: 10px solid #e4d00a;
+    padding: 1px;
+    margin-left: 5px;
+}
+
+.similar-face canvas {
     border: 10px solid #e4d00a;
     padding: 1px;
 }
@@ -31,7 +41,7 @@ body {
     font-size: 1.5em;
     width: 338px;
     vertical-align: middle;
-    padding-left: 20px;
+    padding: 70px 10px 10px 10px;
 }
 
 .similar-face span strong {
