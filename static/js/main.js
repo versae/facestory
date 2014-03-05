@@ -110,6 +110,18 @@
                 this.loadPhoto(this.photo.value);
             }
 
+            // Fix the tag points after resizing
+            $(window).resize(function () {
+                $('.tag-point' ).each(function (index, item) {
+                    var tagSpan = $(item), offset = $(options.canvas).offset(),
+                        left = parseInt(tagSpan.attr('data-left'), 10),
+                        top = parseInt(tagSpan.attr('data-top'), 10);
+                    tagSpan.attr('style',
+                                 'top: ' + (top + offset.top) + 'px; ' +
+                                 'left: ' + (left + offset.left) + 'px;');
+                });
+            });
+
             this.tryagainBtn.onclick = function () {
                 that.tryagain();
             };
@@ -360,12 +372,14 @@
             $(tags).each(function (index, item) {
                 var tagSpan = $('<span/>'),
                     offset = $(options.canvas).offset(),
-                    left = parseInt(widthPct * item.x / 100, 10) + offset.left,
-                    top = parseInt(heightPect * item.y / 100, 10) + offset.top;
+                    left = parseInt(widthPct * item.x / 100, 10),
+                    top = parseInt(heightPect * item.y / 100, 10);
                 tagSpan.addClass('tag-point');
                 // tagSpan.hide();
-                tagSpan.attr('style', 'top: ' + top + 'px; ' +
-                                      'left: ' + left + 'px;');
+                tagSpan.attr('data-left', left);
+                tagSpan.attr('data-top', top);
+                tagSpan.attr('style', 'top: ' + (top + offset.top) + 'px; ' +
+                                      'left: ' + (left + offset.left) + 'px;');
                 tagSpan.attr('id', item.id);
                 $(options.canvasContainer).append(tagSpan);
                 tagSpan.css({
