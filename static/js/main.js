@@ -28,6 +28,7 @@
         photo: '#photo-id',
         shareThis: '#share-this',
         tweetThis: '#tweet-this',
+        copyThis: '#copy-this',
         results: '#results'
     };
     // This will hold the video stream.
@@ -48,6 +49,7 @@
         photo: document.querySelector(options.photo),
         shareThis: document.querySelector(options.shareThis),
         tweetThis: document.querySelector(options.tweetThis),
+        copyThis: document.querySelector(options.copyThis),
         captureBtn: document.querySelector(options.captureBtn),
         tryagainBtn: document.querySelector(options.tryagainBtn),
         message: document.querySelector(options.message),
@@ -79,6 +81,7 @@
                 this.share = false;
                 $(options.shareThis).hide();
                 $(options.tweetThis).hide();
+                $(options.copyThis).hide();
                 $('*').css({
                     'cursor': 'none'
                 });
@@ -103,6 +106,15 @@
                     'href',
                     that.getShareURL(window.location.origin)
                 );
+                $(options.copyThis).attr(
+                    'href',
+                    window.location.origin
+                );
+                $(options.copyThis).click(function (event) {
+                    window.prompt('Copy to clipboard: Cmd-C/Ctrl+C, Enter',
+                                  $(this).attr('href'));
+                    event.preventDefault();
+                });
             }
             if (this.photo.value === '') {
                 this.loadUserMedia();
@@ -214,6 +226,7 @@
                 $(options.message).hide();
                 $(options.shareThis).hide();
                 $(options.tweetThis).hide();
+                $(options.copyThis).hide();
                 $('.tag-point').remove();
                 $('.similar-face').remove();
             }
@@ -270,6 +283,11 @@
                             );
                             $(options.tweetThis).attr('href', tweetURL);
                             $(options.tweetThis).show();
+                            $(options.copyThis).attr(
+                                'href',
+                                window.location.origin + '/' + data.image_id
+                            );
+                            $(options.copyThis).show();
                         }
                     } else {
                         that.showMessage('Oops, something went wrong. ' +
