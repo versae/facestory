@@ -87,7 +87,7 @@
                     // 'padding-top': '0px'
                 });
                 $(this.tryagainBtn).html('Touch the Screen to Try Again');
-                $(this.captureBtn).html('Touch the Screen to Shot!');
+                $(this.captureBtn).html('Touch the Screen to Capture!');
                 $(document).click(function(e) {
                     // Check for left button
                     if (e.button == 0) {
@@ -272,14 +272,14 @@
                             $(options.tweetThis).show();
                         }
                     } else {
-                        that.showMessage('Ups, something went wrong. ' +
+                        that.showMessage('Oops, something went wrong. ' +
                                          'Try again!');
                     }
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     // Some error occured.
                     console.log('Error: ', errorThrown);
-                    that.showMessage('Ups, something went wrong. Try again!');
+                    that.showMessage('Oops, something went wrong. Try again!');
                 }
             });
         },
