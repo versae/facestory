@@ -54,10 +54,22 @@
         progressBar: document.querySelector(options.progressBar),
         results: document.querySelector(options.results),
         colors: [
-            '#e4d00a',
-            '#FF7400', '#BF7130', '#A64B00', '#FF9640', '#FFB273',
-            '#CD0074', '#992667', '#85004B', '#E6399B', '#E667AF',
-            '#00CC00', '#269926', '#008500', '#39E639', '#67E667'
+            '#E4D00A',
+            '#85004B',
+            '#E667AF',
+            '#00CC00',
+            '#CD0074',
+            '#A64B00',
+            '#FF9640',
+            '#67E667',
+            '#992667',
+            '#008500',
+            '#FF7400',
+            '#FFB273',
+            '#39E639',
+            '#E6399B',
+            '#269926',
+            '#BF7130',
         ],
 
         initialize: function () {
@@ -314,6 +326,9 @@
             faceCanvas.attr('id', 'canvas-face-' + index);
             faceCanvas.attr('width', destWidth + 'px');
             faceCanvas.attr('height', destHeight + 'px');
+            faceCanvas.css({
+                'border-color': this.colors[index]
+            });
             $('#similar-face-' + index).prepend(faceCanvas);
             faceCxt = document.getElementById('canvas-face-' + index)
                       .getContext('2d');
