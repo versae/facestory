@@ -30,7 +30,7 @@ class FaceSimilarity(restful.Resource):
         if photo_id:
             faces = get_user_faces(
                 photo_id,
-                exclude=["user_agent", "user_ip", "user_location"]
+                exclude=["user_agent", "user_ip"]
             )
             photo_filename = "{}.png".format(photo_id)
             image_data_uri = get_file_remote(photo_filename,
@@ -102,8 +102,15 @@ class FaceSimilarity(restful.Resource):
                 image_face["face_id"] = face_props["id"]
                 image_face["face_url"] = face_props["url"]
                 image_face["face_symmetry"] = face_props["symmetry"]
+                image_face["user_ip"] = request.remote_addr
+                image_face["user_agent"] = {
+                    "browser": request.user_agent.browser,
+                    "platform": request.user_agent.platform,
+                    "language": request.user_agent.language,
+                    "string": request.user_agent.string,
+                    "version": request.user_agent.version,
+                }
                 save_user_face(image_face)
-                image_face.pop("_id")  # added by pymongo
         return {
             'image_url': image_url,
             'image_id': image_id,
