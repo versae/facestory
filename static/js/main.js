@@ -411,7 +411,7 @@
         showResults: function () {
             $('div.similar-face').fadeIn('slow');
             // Scroll to the bottom
-            $('html').animate({
+            $('html, body').animate({
                 'scrollTop': $(document).height()
             }, 'slow');
             $(options.tryagainBtn).show();
