@@ -44,7 +44,7 @@
         canvas: document.querySelector(options.canvas),
         canvasContainer: document.querySelector(options.canvasContainer),
         // Get the canvas context.
-        ctx: canvas.getContext('2d'),
+        ctx: document.querySelector(options.canvas).getContext('2d'),
         // Get the capture button.
         photo: document.querySelector(options.photo),
         shareThis: document.querySelector(options.shareThis),
@@ -91,11 +91,12 @@
                 });
                 $(this.tryagainBtn).html('Touch the Screen to Try Again');
                 $(this.captureBtn).html('Touch the Screen to Capture!');
-                $(document).click(function(e) {
+                $(document).click(function (event) {
                     // Check for left button
-                    if (e.button == 0) {
+                    if (event.button == 0) {
                         $('button:visible').click();
                     }
+                    event.preventDefault();
                 });
             } else {
                 $(options.shareThis).attr(
