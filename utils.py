@@ -151,7 +151,7 @@ def get_file_remote(filename, data_uri=False, headers=None):
     if data_uri:
         file_string = k.get_contents_as_string(headers=headers)
         file_base64 = file_string.encode('base64')
-        file_data_uri = r'image/png;base64,{}'.format(file_base64)
+        file_data_uri = r'{};base64,{}'.format(k.content_type, file_base64)
         return file_data_uri
     else:
         return k.generate_url(expires_in=30)

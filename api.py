@@ -10,7 +10,7 @@ from flask import request
 from flask.ext import restful
 from flask.ext.restful import reqparse
 
-from db import save_user_face, get_user_face
+from db import save_user_face, get_user_faces
 from utils import (get_face_properties, get_image_faces,
                    save_file_remote, get_file_remote)
 from settings import PROJECT_ROOT
@@ -28,7 +28,10 @@ class FaceSimilarity(restful.Resource):
         photo_id = args["photo_id"]
         include_data_uri = args["include_data_uri"]
         if photo_id:
-            faces = get_user_face(photo_id)
+            faces = get_user_faces(
+                photo_id,
+                exclude=["user_agent", "user_ip", "user_location"]
+            )
             photo_filename = "{}.png".format(photo_id)
             image_data_uri = get_file_remote(photo_filename,
                                              data_uri=include_data_uri)
