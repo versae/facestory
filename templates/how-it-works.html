@@ -1,0 +1,107 @@
+{% extends "index.html" %}
+
+{% block extra_meta %}
+{{ super() }}
+    <meta property="og:image" content="http://projects.cultureplex.ca/faces/101.png" />
+{% endblock %}
+
+{% block pagetitle %}How it works?{% endblock %}
+
+{% block active_how_it_works %}class="active"{% endblock %}
+
+{% block container %}
+<div class="page-header">
+    <h1>How it works?</h1>
+    <p class="lead">
+        There are too many ways to decide whether a face is similar to another.
+    </p>
+    <p>
+        <a href="/">Your Face in History</a> uses a quite simple approach based
+        on symmetry calculation. For our study, the algorithm uses 3 points for the mouth (left, center, and right),
+        1 for each pupil, and 1 for the nose. We could have considered ears or chin,
+        but the number of faces in which these attributes were found with enough
+        confidence in the dataset (higher than 80%) is fairly insignificant (6%).
+    </p>
+    <p>
+        <img src="{{ url_for("static", filename="img/method1.png") }}" width="900px" alt="">
+    </p>
+    <p>
+        Besides the points cited previously, the algorithm also gave us the
+        centroid or geometric center of all detected features (<em>a</em>),
+        which is supposed to coincide with the center of the face. From it, we
+        can set a straight line that splits the face into two sides or hemifaces.
+        Figure <em>b</em> shows points 1 to 6 (P1 for left eye, P2 for right eye,
+        P3 for nose, P4 for mouth center, P5 for left mouth corner, and P6 for
+        right mouth corner), as well as the line H, that we assume to be the axis
+        of face symmetry. We now trace segments: D1 between P1 and P2, and D2
+        between P5 and P6 (<em>c</em>). For these segments we calculate the
+        midpoints M1 and M2. Symmetry is now obtained as the sum of the
+        distances in pixels of M1, M2, P3 and P6 with respect to the line H.
+        Only lateral symmetry is therefore estimated. For perfect symmetrical
+        faces this value adds to zero; all symmetry values are normalized
+        between 0 and 1.
+    </p>
+    <p>
+        Once we have the dataset tagged, we can run the same calculation to any face
+        and compare with the dataset in order to give the most similar face
+        in terms of symmetry.
+        Next is the actual code in Python that computes the calculation of the symmetry.
+        <pre><code>def get_symmetry(face_features, painting_width, painting_height,
+                 desired_height=250):
+    """Calculate the symmetry of a face"""
+    height = 1.0 * painting_height * face_features['height'] / 100
+    # width = face_features['width']
+    resize_height = (1.0 * painting_height * desired_height / height) / 100.0
+    resize_width = (1.0 * painting_width * desired_height / height) / 100.0
+    # Hemiline slope and intercept (independent term)
+    center = (
+        face_features["center"]["x"] * resize_width,
+        face_features["center"]["y"] * resize_height
+    )
+    alpha = face_features["roll"]
+    hemiline_m = math.tan(math.radians(90 - alpha))
+    hemiline_c = center[1] - hemiline_m * center[0]
+    # Midpoints
+    eye_left = (
+        face_features["eye_left"]["x"] * resize_width,
+        face_features["eye_left"]["y"] * resize_height
+    )
+    eye_right = (
+        face_features["eye_right"]["x"] * resize_width,
+        face_features["eye_right"]["y"] * resize_height
+    )
+    m1 = midpoint(eye_left, eye_right)
+    mouth_left = (
+        face_features["mouth_left"]["x"] * resize_width,
+        face_features["mouth_left"]["y"] * resize_height
+    )
+    mouth_right = (
+        face_features["mouth_right"]["x"] * resize_width,
+        face_features["mouth_right"]["y"] * resize_height
+    )
+    m2 = midpoint(mouth_left, mouth_right)
+    # Remaining points
+    nose = (
+        face_features["nose"]["x"] * resize_width,
+        face_features["nose"]["y"] * resize_height
+    )
+    mouth = (
+        face_features["mouth_center"]["x"] * resize_width,
+        face_features["mouth_center"]["y"] * resize_height
+    )
+    # Distances
+    d1 = point_line_distance(m1, hemiline_m, hemiline_c)
+    d2 = point_line_distance(m2, hemiline_m, hemiline_c)
+    d3 = point_line_distance(nose, hemiline_m, hemiline_c)
+    d4 = point_line_distance(mouth, hemiline_m, hemiline_c)
+    return (desired_height - (d1 + d2 + d3 + d4)) / desired_height
+</code></pre>
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/default.min.css">
+<script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+{% endblock %}

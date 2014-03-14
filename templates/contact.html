@@ -1,0 +1,20 @@
+{% extends "index.html" %}
+
+{% block extra_meta %}
+{{ super() }}
+    <meta property="og:image" content="http://projects.cultureplex.ca/faces/101.png" />
+{% endblock %}
+
+{% block pagetitle %}Contact{% endblock %}
+
+{% block active_contact %}class="active"{% endblock %}
+
+{% block container %}
+<div class="page-header">
+    <h1>Contact</h1>
+    <p class="lead">
+        For further information about the project, the site <a href="/">Your Face in History</a>,
+        the results or the data, please contact <a href="http://www.cultureplex.ca/people/javier-de-la-rosa/">Javier de la Rosa</a>.
+    </p>
+</div>
+{% endblock %}

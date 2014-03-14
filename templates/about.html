@@ -1,0 +1,44 @@
+{% extends "index.html" %}
+
+{% block extra_meta %}
+{{ super() }}
+    <meta property="og:image" content="http://projects.cultureplex.ca/faces/101.png" />
+{% endblock %}
+
+{% block pagetitle %}About{% endblock %}
+
+{% block active_about %}class="active"{% endblock %}
+
+{% block container %}
+<div class="page-header">
+    <h1>About</h1>
+    <p>
+        This site is the result of an ongoing project at the
+        <a href="http://www.cultureplex.ca/">CulturePlex Lab</a> about
+        the representation of the human in world painting.
+        <a href="/">Your Face in History</a>
+
+    </p>
+    <p>
+        In order to be able to provide links to the results obtained by the
+        users, <a href="/">Your Face in History</a> collects and store the
+        images and the independent facial traits recognized into a database.
+        Images cannot be accessible from outside the site. However, if you are
+        unhappy with this, please, send us an email containing the URL of your
+        result and we will remove that image as soon as possible.
+    </p>
+    <p>
+        Faces were extracted from the paintings stored in <a href="pintura.aut.org">pintura.aut.org</a>.
+    </p>
+    <h2>Credits</h2>
+    <p>
+        This site uses the icons provide by <a href="http://glyphicons.com/">Glyphicons</a> under the arragment between them and <a href="http://getbootstrap.com/">Bootstrap</a>.
+    </p>
+    <h2>Code</h2>
+    <p>
+        The whole code of this site is available in <a href="https://github.com/versae/facestory">GitHub</a>.
+        A <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> is also provided to ease the deployment,
+        previous setting of some environment variables specified in the <code><a href="https://github.com/versae/facestory/blob/master/settings.py">settings.py</a></code> file.
+    </p>
+</div>
+{% endblock %}

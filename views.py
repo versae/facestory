@@ -11,7 +11,7 @@ add_api(app)
 
 @app.route('/')
 @app.route('/<photo_id>')
-def home(photo_id=None):
+def view_home(photo_id=None):
     photo_url = None
     if not photo_id:
         photo_id = ""
@@ -27,13 +27,19 @@ def home(photo_id=None):
 
 
 @app.route('/about')
-def about():
+def view_about():
     return render_template('about.html')
 
 
 @app.route('/contact')
-def contact():
+def view_contact():
     return render_template('contact.html')
+
+
+@app.route('/how-it-works')
+def view_how_it_works():
+    return render_template('how-it-works.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
