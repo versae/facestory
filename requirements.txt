@@ -13,6 +13,6 @@ gunicorn==19.5.0
 itsdangerous==0.23
 pymongo==2.6.3
 pytz==2013.9
-requests==2.2.1
+requests==2.20.0
 six==1.5.2
 wsgiref==0.1.2
